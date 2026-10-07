@@ -326,6 +326,14 @@ server {
 MONGO_URI=mongodb://your-mongo-host/ecommerce_db npm run seed
 ```
 
+### Deployed Instances
+- **Frontend**: https://e-commerce-management-zeta.vercel.app
+- **Backend API**: https://e-commerce-management-ztij-cyan.vercel.app
+
+The production build calls the backend URL by default (fallback set in `frontend/src/config.js`). Override it at build time with `VITE_API_URL` if the backend host changes.
+
+> On the backend host, set `FRONTEND_URL=https://e-commerce-management-zeta.vercel.app` so the CORS configuration allows the deployed frontend.
+
 ### Local Development
 ```bash
 # Terminal 1: backend on http://localhost:5000
