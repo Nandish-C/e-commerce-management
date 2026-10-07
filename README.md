@@ -155,7 +155,7 @@ PORT=5000
 ```
 
 ### Frontend Configuration
-The frontend automatically connects to `http://localhost:5000` for API calls (see API calls in `frontend/src/App.jsx`).
+The frontend calls the backend at relative `/api/*` paths. During development, Vite proxies `/api` to `http://localhost:5000` (see `frontend/vite.config.js`). For production builds where the backend is on a different origin, set `VITE_API_URL` before building (see [Production Deployment](#-production-deployment)).
 
 ## ▶️ Running the Application
 
@@ -266,61 +266,64 @@ e-commerce-management/
 └── README.md                     # This file
 ```
 
-## ☁️ Deployment (Vercel)
+## ☁️ Production Deployment
 
-The project is configured for a single Vercel deployment: the React build is served as static files and the Express API runs as a serverless function under `/api/*`.
-
-### Deployment Files
-- `vercel.json` — build command, output directory, and rewrites (`/api/*` → serverless function, SPA fallback)
-- `api/index.js` — Vercel serverless entry that exports the Express app
-- `backend/index.js` — skips `app.listen` when `VERCEL` is set (Vercel provides its own server)
-
-### Prerequisites
-1. A [Vercel](https://vercel.com) account
-2. A **cloud MongoDB URI** (e.g. [MongoDB Atlas](https://www.mongodb.com/atlas)) — the default `mongodb://localhost:27017/ecommerce_db` only works on your machine and will not be reachable from Vercel
-
-### Deploy Steps
+### Build the Frontend
 ```bash
-# 1. Install the Vercel CLI
-npm install -g vercel
+cd frontend
+npm install
+npm run build
+```
+Production static files are generated in `frontend/dist`.
 
-# 2. Login
-vercel login
+### Configure the API URL
+The frontend calls the backend using relative `/api/*` paths.
 
-# 3. Link and deploy (from the repo root)
-vercel
+- **Same origin** (frontend and API served by one host, e.g. behind an nginx reverse proxy): no configuration needed
+- **Separate hosts** (frontend and backend deployed independently): set `VITE_API_URL` to the backend's public URL before building
+
+```bash
+# Linux / macOS
+VITE_API_URL=https://api.example.com npm run build
+
+# Windows PowerShell
+$env:VITE_API_URL="https://api.example.com"; npm run build
 ```
 
-### Environment Variables (Vercel Dashboard)
-In your Vercel project, go to **Settings → Environment Variables** and add:
-
-| Key | Value |
-| --- | --- |
-| `MONGO_URI` | `mongodb+srv://<user>:<password>@cluster.mongodb.net/ecommerce_db` (your Atlas URI) |
-
-> `PORT` is not needed — Vercel assigns the port automatically.
-
-### Seed the Cloud Database
+### Run the Backend
 ```bash
-# Point MONGO_URI at your Atlas cluster, then seed
-$env:MONGO_URI="mongodb+srv://<user>:<password>@cluster.mongodb.net/ecommerce_db"
-npm run seed
+cd backend
+npm install
+npm start
+```
+Point `MONGO_URI` in `backend/.env` (or as an environment variable) to a reachable MongoDB — use a cloud database such as [MongoDB Atlas](https://www.mongodb.com/atlas) when deploying to a server.
+
+### Example: nginx Reverse Proxy (same origin)
+```nginx
+server {
+    listen 80;
+    server_name example.com;
+
+    root /path/to/frontend/dist;
+    index index.html;
+
+    location / {
+        try_files $uri /index.html;   # SPA fallback
+    }
+
+    location /api/ {
+        proxy_pass http://localhost:5000;
+        proxy_set_header Host $host;
+    }
+}
 ```
 
-### Common Vercel Errors
+### Seed the Production Database
+```bash
+MONGO_URI=mongodb://your-mongo-host/ecommerce_db npm run seed
+```
 
-**`ENOENT: no such file or directory, open '/vercel/path0/frontend/frontend/package.json'`**
-
-Cause: Vercel auto-detected the Vite app and set the project's **Root Directory** to `frontend/`. This monorepo setup requires the Root Directory to be the **repo root** (both `backend/` and `frontend/` must be in the build context, and `api/` must sit at the root for the serverless function).
-
-Fix:
-1. Vercel Dashboard → Project **Settings → General → Root Directory**
-2. Change `frontend` → `./`
-3. **Save** → **Redeploy**
-
-Or deploy via CLI from the repo root (`vercel --prod`), which always uses the repo root.
-
-### Local Development (unchanged)
+### Local Development
 ```bash
 # Terminal 1: backend on http://localhost:5000
 npm start

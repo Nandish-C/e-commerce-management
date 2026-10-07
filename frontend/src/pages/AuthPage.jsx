@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUser, FaLock, FaMailBulk, FaPhone, FaShoppingCart, FaGoogle, FaFacebookF, FaTwitter, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { API_BASE } from '../config';
 
 const AuthPage = ({ onLogin, onRegister }) => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const AuthPage = ({ onLogin, onRegister }) => {
   // Sync user with backend to get a persistent _id
   const syncUserWithBackend = async (userData) => {
     try {
-      const response = await fetch('/api/users/create', {
+      const response = await fetch(`${API_BASE}/api/users/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
