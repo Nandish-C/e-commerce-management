@@ -1,7 +1,7 @@
 {
-  "name": "nandicart-backend",
+  "name": "my-cart-backend",
   "version": "1.0.0",
-  "description": "Backend API for NandiCart",
+  "description": "Backend API for My Cart",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

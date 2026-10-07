@@ -6,7 +6,7 @@ const AdminProfilePage = ({ user, onLogout }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
     name: user?.name || 'Admin User',
-    email: user?.email || 'admin@nandicart.com',
+    email: user?.email || 'admin@mycart.com',
     phone: '9876543210',
     role: user?.role || 'admin'
   });

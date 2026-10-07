@@ -68,10 +68,10 @@ const AuthPage = ({ onLogin, onRegister }) => {
     console.log('Login Data:', loginData);
     
     // Admin login
-    if (loginData.email === 'admin@nandicart.com' && loginData.password === 'admin123') {
+    if (loginData.email === 'admin@mycart.com' && loginData.password === 'admin123') {
       const adminUser = await syncUserWithBackend({
         name: 'Admin User',
-        email: 'admin@nandicart.com',
+        email: 'admin@mycart.com',
         role: 'admin'
       });
       onLogin(adminUser);

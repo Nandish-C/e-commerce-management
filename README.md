@@ -195,7 +195,7 @@ npm run dev
 ```
 
 ### Demo Admin Login
-- **Email**: `admin@nandicart.com`
+- **Email**: `admin@mycart.com`
 - **Password**: `admin123`
 
 ## 📡 API Endpoints
