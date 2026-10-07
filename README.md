@@ -152,9 +152,6 @@ MONGO_URI=mongodb://localhost:27017/ecommerce_db
 
 # Server Configuration
 PORT=5000
-
-# Frontend origin allowed to call the API (CORS)
-FRONTEND_URL=https://e-commerce-management-zeta.vercel.app
 ```
 
 ### Frontend Configuration
