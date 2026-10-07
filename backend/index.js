@@ -8,8 +8,26 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 
+// Allowed origins: deployed frontend (from .env) + local dev servers
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://localhost:3000",
+].filter(Boolean);
+
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no Origin header (curl, Postman, server-to-server)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Blocked by CORS: " + origin));
+      }
+    },
+  })
+);
 app.use(express.json());
 
 // Routes
