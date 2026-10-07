@@ -26,7 +26,7 @@ function App() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/products')
+        const response = await fetch('/api/products')
         const data = await response.json()
         setProducts(data)
       } catch (error) {
@@ -65,7 +65,7 @@ function App() {
     const fetchOrders = async () => {
       if (user) {
         try {
-          const response = await fetch(`http://localhost:5000/api/orders/user/${user._id}`)
+          const response = await fetch(`/api/orders/user/${user._id}`)
           const data = await response.json()
           setOrders(data)
         } catch (error) {
@@ -148,7 +148,7 @@ function App() {
       };
 
       // Send order to backend
-      const response = await fetch('http://localhost:5000/api/orders/create', {
+      const response = await fetch('/api/orders/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

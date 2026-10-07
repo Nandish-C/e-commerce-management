@@ -41,7 +41,7 @@ const AuthPage = ({ onLogin, onRegister }) => {
   // Sync user with backend to get a persistent _id
   const syncUserWithBackend = async (userData) => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/create', {
+      const response = await fetch('/api/users/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

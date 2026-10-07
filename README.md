@@ -266,6 +266,57 @@ e-commerce-management/
 └── README.md                     # This file
 ```
 
+## ☁️ Deployment (Vercel)
+
+The project is configured for a single Vercel deployment: the React build is served as static files and the Express API runs as a serverless function under `/api/*`.
+
+### Deployment Files
+- `vercel.json` — build command, output directory, and rewrites (`/api/*` → serverless function, SPA fallback)
+- `api/index.js` — Vercel serverless entry that exports the Express app
+- `backend/index.js` — skips `app.listen` when `VERCEL` is set (Vercel provides its own server)
+
+### Prerequisites
+1. A [Vercel](https://vercel.com) account
+2. A **cloud MongoDB URI** (e.g. [MongoDB Atlas](https://www.mongodb.com/atlas)) — the default `mongodb://localhost:27017/ecommerce_db` only works on your machine and will not be reachable from Vercel
+
+### Deploy Steps
+```bash
+# 1. Install the Vercel CLI
+npm install -g vercel
+
+# 2. Login
+vercel login
+
+# 3. Link and deploy (from the repo root)
+vercel
+```
+
+### Environment Variables (Vercel Dashboard)
+In your Vercel project, go to **Settings → Environment Variables** and add:
+
+| Key | Value |
+| --- | --- |
+| `MONGO_URI` | `mongodb+srv://<user>:<password>@cluster.mongodb.net/ecommerce_db` (your Atlas URI) |
+
+> `PORT` is not needed — Vercel assigns the port automatically.
+
+### Seed the Cloud Database
+```bash
+# Point MONGO_URI at your Atlas cluster, then seed
+$env:MONGO_URI="mongodb+srv://<user>:<password>@cluster.mongodb.net/ecommerce_db"
+npm run seed
+```
+
+### Local Development (unchanged)
+```bash
+# Terminal 1: backend on http://localhost:5000
+npm start
+
+# Terminal 2: frontend on http://localhost:5173 (proxies /api to the backend)
+cd frontend
+npm run dev
+```
+
 ## 🔧 Troubleshooting
 
 ### Common Issues and Solutions
