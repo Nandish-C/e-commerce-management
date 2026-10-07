@@ -307,6 +307,19 @@ $env:MONGO_URI="mongodb+srv://<user>:<password>@cluster.mongodb.net/ecommerce_db
 npm run seed
 ```
 
+### Common Vercel Errors
+
+**`ENOENT: no such file or directory, open '/vercel/path0/frontend/frontend/package.json'`**
+
+Cause: Vercel auto-detected the Vite app and set the project's **Root Directory** to `frontend/`. This monorepo setup requires the Root Directory to be the **repo root** (both `backend/` and `frontend/` must be in the build context, and `api/` must sit at the root for the serverless function).
+
+Fix:
+1. Vercel Dashboard → Project **Settings → General → Root Directory**
+2. Change `frontend` → `./`
+3. **Save** → **Redeploy**
+
+Or deploy via CLI from the repo root (`vercel --prod`), which always uses the repo root.
+
 ### Local Development (unchanged)
 ```bash
 # Terminal 1: backend on http://localhost:5000
