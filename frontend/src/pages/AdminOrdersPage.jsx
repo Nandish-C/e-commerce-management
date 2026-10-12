@@ -2,7 +2,8 @@ import { FaTruck, FaBox, FaFilter, FaSearch, FaEdit, FaEye, FaTrash } from 'reac
 import { useState, useEffect } from 'react';
 import './Admin.css';
 
-const AdminOrdersPage = ({ user, onLogout, orders = [] }) => {
+const AdminOrdersPage = ({ user, onLogout, orders: ordersProp }) => {
+  const orders = Array.isArray(ordersProp) ? ordersProp : [];
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,7 +21,7 @@ const AdminOrdersPage = ({ user, onLogout, orders = [] }) => {
 
 
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.id.toString().includes(searchTerm) ||
+    const matchesSearch = (order.id ?? order._id ?? '').toString().includes(searchTerm) ||
                         order.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         order.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
@@ -201,9 +202,9 @@ const AdminOrdersPage = ({ user, onLogout, orders = [] }) => {
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders.map(order => (
-                  <tr key={order.id} className="order-row">
-                    <td>#{order.id}</td>
+                {filteredOrders.map((order, index) => (
+                  <tr key={order.id ?? order._id ?? index} className="order-row">
+                    <td>#{order.id ?? order._id}</td>
                     <td>{order.customerName}</td>
                     <td>{order.email}</td>
                     <td>{order.phone}</td>
@@ -214,12 +215,12 @@ const AdminOrdersPage = ({ user, onLogout, orders = [] }) => {
                       </span>
                     </td>
                     <td>{order.paymentMethod}</td>
-                    <td>{order.orderDate || order.date.toISOString().split('T')[0]}</td>
+                    <td>{order.orderDate || (order.date ? new Date(order.date).toISOString().split('T')[0] : '-')}</td>
                     <td>{order.deliveryDate}</td>
                     <td className="action-buttons">
                       <select
                         value={order.status}
-                        onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
+                        onChange={(e) => handleStatusUpdate(order.id ?? order._id, e.target.value)}
                         className="status-select"
                       >
                         {Object.entries(statusLabels).map(([key, label]) => (

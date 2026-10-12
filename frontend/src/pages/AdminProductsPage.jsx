@@ -2,7 +2,8 @@ import { FaBox, FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from 'react-icons/
 import { useState } from 'react';
 import './Admin.css';
 
-const AdminProductsPage = ({ user, onLogout, products, addProduct, deleteProduct, updateProduct }) => {
+const AdminProductsPage = ({ user, onLogout, products: productsProp, addProduct, deleteProduct, updateProduct }) => {
+  const products = Array.isArray(productsProp) ? productsProp : [];
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -176,9 +177,9 @@ const AdminProductsPage = ({ user, onLogout, products, addProduct, deleteProduct
                 </tr>
               </thead>
               <tbody>
-                {filteredProducts.map(product => (
-                  <tr key={product.id} className="product-row">
-                    <td>{product.id}</td>
+                {filteredProducts.map((product, index) => (
+                  <tr key={product.id ?? product._id ?? index} className="product-row">
+                    <td>{product.id ?? product._id}</td>
                     <td>{product.name}</td>
                     <td>{product.category}</td>
                     <td>Rs. {product.price}</td>
@@ -188,12 +189,12 @@ const AdminProductsPage = ({ user, onLogout, products, addProduct, deleteProduct
                         {product.status === 'active' ? 'Active' : 'Out of Stock'}
                       </span>
                     </td>
-                    <td>{product.createdAt || new Date().toISOString().split('T')[0]}</td>
+                    <td>{product.createdAt ? new Date(product.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}</td>
                     <td className="action-buttons">
                       <button className="edit-btn" onClick={() => handleEdit(product)}>
                         <FaEdit className="btn-icon" />
                       </button>
-                      <button className="delete-btn" onClick={() => handleDelete(product.id)}>
+                      <button className="delete-btn" onClick={() => handleDelete(product.id ?? product._id)}>
                         <FaTrash className="btn-icon" />
                       </button>
                     </td>

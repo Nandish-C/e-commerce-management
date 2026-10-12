@@ -3,10 +3,47 @@ import { Link } from 'react-router-dom';
 import { FaTruck, FaBox, FaCreditCard, FaCalendar, FaMapPin, FaDownload, FaCheckCircle } from 'react-icons/fa';
 import { jsPDF } from 'jspdf';
 
+// The API returns orders in the backend shape (deliveryAddress/shippingAddress/products,
+// ISO date strings). Normalize them to the shape this page renders.
+const normalizeOrder = (o = {}) => {
+  const dd = o.deliveryDetails || {};
+  const address = dd.shipping || o.shippingAddress || o.deliveryAddress || {};
+  const items = Array.isArray(o.items)
+    ? o.items
+    : Array.isArray(o.products)
+      ? o.products.map((p) => ({
+          name: p.product?.name || p.name || 'Product',
+          image: p.product?.image || p.image || '',
+          quantity: p.quantity ?? 1,
+          price: p.price ?? p.product?.price ?? 0,
+        }))
+      : [];
+  const subtotal = o.subtotal ?? items.reduce((sum, it) => sum + (it.price || 0) * (it.quantity || 1), 0);
+  const deliveryFee = o.deliveryFee ?? 0;
+  const gstAmount = o.gstAmount ?? o.gst ?? 0;
+  return {
+    ...o,
+    id: o.id ?? o._id,
+    date: o.date || o.orderDate || o.createdAt,
+    items,
+    subtotal,
+    deliveryFee,
+    gstAmount,
+    total: o.total ?? subtotal + deliveryFee + gstAmount,
+    deliveryDetails: {
+      shipping: address,
+      billing: dd.billing || { ...address },
+      sameAsShipping: dd.sameAsShipping ?? true,
+      deliveryDate: dd.deliveryDate || o.deliveryDate,
+    },
+  };
+};
+
 const OrderTrackingPage = ({ orders = [], user }) => {
+  const safeOrders = (Array.isArray(orders) ? orders : []).map(normalizeOrder);
   const [selectedOrder, setSelectedOrder] = useState(0);
 
-  if (!user || orders.length === 0) {
+  if (!user || safeOrders.length === 0) {
     return (
       <div className="order-tracking-page">
         <div className="tracking-container">
@@ -23,7 +60,7 @@ const OrderTrackingPage = ({ orders = [], user }) => {
     );
   }
 
-  const currentOrder = orders[selectedOrder];
+  const currentOrder = safeOrders[selectedOrder] || safeOrders[0];
 
   const handleDownloadInvoice = () => {
     const doc = new jsPDF();
@@ -190,7 +227,7 @@ const OrderTrackingPage = ({ orders = [], user }) => {
         <div className="order-list">
           <h2>Your Orders</h2>
           <div className="order-cards">
-            {orders.map((order, index) => (
+            {safeOrders.map((order, index) => (
               <div
                 key={order.id}
                 className={`order-card ${selectedOrder === index ? 'active' : ''}`}
@@ -408,7 +445,7 @@ const OrderTrackingPage = ({ orders = [], user }) => {
                   <div className="timeline-content">
                     <div className="timeline-title">Order Processed</div>
                     <div className="timeline-date">
-                      {new Date(currentOrder.date.getTime() + 1000 * 60 * 30).toLocaleString()}
+                      {new Date(new Date(currentOrder.date).getTime() + 1000 * 60 * 30).toLocaleString()}
                     </div>
                   </div>
                 </div>
@@ -420,7 +457,7 @@ const OrderTrackingPage = ({ orders = [], user }) => {
                   <div className="timeline-content">
                     <div className="timeline-title">Order Shipped</div>
                     <div className="timeline-date">
-                      {new Date(currentOrder.date.getTime() + 1000 * 60 * 60 * 24).toLocaleString()}
+                      {new Date(new Date(currentOrder.date).getTime() + 1000 * 60 * 60 * 24).toLocaleString()}
                     </div>
                   </div>
                 </div>
@@ -432,7 +469,7 @@ const OrderTrackingPage = ({ orders = [], user }) => {
                   <div className="timeline-content">
                     <div className="timeline-title">Order Delivered</div>
                     <div className="timeline-date">
-                      {new Date(currentOrder.date.getTime() + 1000 * 60 * 60 * 48).toLocaleString()}
+                      {new Date(new Date(currentOrder.date).getTime() + 1000 * 60 * 60 * 48).toLocaleString()}
                     </div>
                   </div>
                 </div>
