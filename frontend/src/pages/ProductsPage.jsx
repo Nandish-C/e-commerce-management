@@ -28,7 +28,7 @@ const ProductsPage = ({ products, addToCart, user, addProduct, deleteProduct, up
     addToCart(product);
   };
 
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = (Array.isArray(products) ? products : []).filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;

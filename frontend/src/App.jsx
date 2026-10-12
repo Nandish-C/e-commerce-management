@@ -29,7 +29,11 @@ function App() {
       try {
         const response = await fetch(`${API_BASE}/api/products`)
         const data = await response.json()
-        setProducts(data)
+        if (Array.isArray(data)) {
+          setProducts(data)
+        } else {
+          throw new Error(data?.error || 'API did not return a product list')
+        }
       } catch (error) {
         console.error('Error fetching products:', error)
         // Fallback to dummy data if API fails
@@ -68,7 +72,7 @@ function App() {
         try {
           const response = await fetch(`${API_BASE}/api/orders/user/${user._id}`)
           const data = await response.json()
-          setOrders(data)
+          setOrders(Array.isArray(data) ? data : [])
         } catch (error) {
           console.error('Error fetching orders:', error)
           setOrders([])

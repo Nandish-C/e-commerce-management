@@ -30,16 +30,47 @@ app.use(
 );
 app.use(express.json());
 
+// MongoDB Connection (cached across serverless invocations)
+const cached = global.mongoose || { conn: null, promise: null };
+global.mongoose = cached;
+
+async function connectDB() {
+  if (!process.env.MONGO_URI) {
+    throw new Error("MONGO_URI environment variable is not set");
+  }
+  if (cached.conn) return cached.conn;
+  if (!cached.promise) {
+    cached.promise = mongoose
+      .connect(process.env.MONGO_URI)
+      .then((conn) => conn)
+      .catch((err) => {
+        cached.promise = null; // allow retry on the next request
+        throw err;
+      });
+  }
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+// Connect on startup (local dev) — cached.promise is reused by the middleware
+connectDB()
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ MongoDB connection failed:", err.message));
+
+// Ensure the database is connected before handling API routes
+app.use("/api", async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ error: "Database connection failed: " + err.message });
+  }
+});
+
 // Routes
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
-
-// MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.log(err));
 
 // Test Route
 app.get("/", (req, res) => {

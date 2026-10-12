@@ -9,7 +9,7 @@ const HomePage = ({ products, addToCart, user }) => {
 
   const categories = ['all', 'Electronics', 'Clothing', 'Books', 'Home & Kitchen'];
 
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = (Array.isArray(products) ? products : []).filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
