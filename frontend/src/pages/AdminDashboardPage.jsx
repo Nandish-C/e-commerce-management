@@ -1,45 +1,34 @@
 import { FaChartLine, FaBox, FaUsers, FaTruck, FaChartBar, FaTasks, FaCog, FaSignOutAlt } from 'react-icons/fa';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './Admin.css';
 
 const AdminDashboardPage = ({ user, onLogout }) => {
-  const [totalSales, setTotalSales] = useState(0);
-  const [totalProducts, setTotalProducts] = useState(0);
-  const [totalCustomers, setTotalCustomers] = useState(0);
-  const [totalOrders, setTotalOrders] = useState(0);
-  const [recentOrders, setRecentOrders] = useState([]);
-
-  // Load data from localStorage on initial render
-  useEffect(() => {
-    // Load orders
-    const savedOrders = localStorage.getItem('orders');
-    if (savedOrders) {
-      const orders = JSON.parse(savedOrders);
-      setTotalOrders(orders.length);
-      
-      // Calculate total sales
-      const sales = orders.reduce((sum, order) => sum + (order.total || 0), 0);
-      setTotalSales(sales);
-
-      // Get recent orders (last 4)
-      const sortedOrders = [...orders].sort((a, b) => new Date(b.date) - new Date(a.date));
-      setRecentOrders(sortedOrders.slice(0, 4));
+  // Load all dashboard stats from localStorage once, via a lazy initializer
+  // (avoids setState inside an effect, which triggers cascading renders)
+  const [stats] = useState(() => {
+    let orders = [];
+    let products = [];
+    let users = [];
+    try {
+      const savedOrders = localStorage.getItem('orders');
+      const savedProducts = localStorage.getItem('products');
+      const savedUsers = localStorage.getItem('users');
+      if (savedOrders) orders = JSON.parse(savedOrders) || [];
+      if (savedProducts) products = JSON.parse(savedProducts) || [];
+      if (savedUsers) users = JSON.parse(savedUsers) || [];
+    } catch {
+      // Ignore malformed localStorage data
     }
+    return {
+      totalOrders: orders.length,
+      totalSales: orders.reduce((sum, order) => sum + (order.total || 0), 0),
+      recentOrders: [...orders].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 4),
+      totalProducts: products.length,
+      totalCustomers: users.length,
+    };
+  });
 
-    // Load products
-    const savedProducts = localStorage.getItem('products');
-    if (savedProducts) {
-      const products = JSON.parse(savedProducts);
-      setTotalProducts(products.length);
-    }
-
-    // Load users
-    const savedUsers = localStorage.getItem('users');
-    if (savedUsers) {
-      const users = JSON.parse(savedUsers);
-      setTotalCustomers(users.length);
-    }
-  }, []);
+  const { totalSales, totalProducts, totalCustomers, totalOrders, recentOrders } = stats;
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {

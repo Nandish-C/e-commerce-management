@@ -2,33 +2,42 @@ import { useState, useEffect } from 'react';
 import { FaComment, FaTimes, FaPaperPlane } from 'react-icons/fa';
 import './ChatBot.css';
 
+// Defined outside the component so the impure Date call is not made during render
+const nextMessageId = () => Date.now();
+
 const ChatBot = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
-  const [inputText, setInputText] = useState('');
-
-  // Load chat history from localStorage
-  useEffect(() => {
-    const chatHistory = localStorage.getItem('chatHistory');
-    if (chatHistory) {
-      setMessages(JSON.parse(chatHistory));
-    } else {
-      // Welcome message
-      setMessages([
-        {
-          id: Date.now(),
-          sender: 'bot',
-          text: 'Hello! How can I assist you today?',
-          time: new Date().toISOString()
-        }
-      ]);
+  const [messages, setMessages] = useState(() => {
+    // Load chat history from localStorage once, via a lazy initializer
+    try {
+      const chatHistory = localStorage.getItem('chatHistory');
+      if (chatHistory) {
+        const parsed = JSON.parse(chatHistory);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {
+      // Ignore malformed history
     }
-  }, []);
+    // Welcome message
+    return [
+      {
+        id: nextMessageId(),
+        sender: 'bot',
+        text: 'Hello! How can I assist you today?',
+        time: new Date().toISOString()
+      }
+    ];
+  });
+  const [inputText, setInputText] = useState('');
 
   // Save chat history to localStorage whenever it changes
   useEffect(() => {
     if (messages.length > 0) {
-      localStorage.setItem('chatHistory', JSON.stringify(messages));
+      try {
+        localStorage.setItem('chatHistory', JSON.stringify(messages));
+      } catch {
+        // Ignore unavailable storage
+      }
     }
   }, [messages]);
 
@@ -36,7 +45,7 @@ const ChatBot = ({ user }) => {
     if (!inputText.trim()) return;
 
     const newMessage = {
-      id: Date.now(),
+      id: nextMessageId(),
       sender: 'user',
       text: inputText.trim(),
       time: new Date().toISOString()

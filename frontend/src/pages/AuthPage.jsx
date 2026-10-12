@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaUser, FaLock, FaMailBulk, FaPhone, FaShoppingCart, FaGoogle, FaFacebookF, FaTwitter, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { API_BASE } from '../config';
 
-const AuthPage = ({ onLogin, onRegister }) => {
+const AuthPage = ({ onLogin }) => {
   const navigate = useNavigate();
   const [showRegister, setShowRegister] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);

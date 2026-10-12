@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaShoppingCart, FaPlus, FaMinus, FaTrash, FaCreditCard, FaTruck, FaHome, FaUser, FaMapPin } from 'react-icons/fa';
 
-const CartPage = ({ cartItems, updateQuantity, removeFromCart, clearCart, placeOrder }) => {
+// Defined outside the component so the impure Date call is not made during render
+const getDefaultDeliveryDate = () =>
+  new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+const CartPage = ({ cartItems, updateQuantity, removeFromCart, placeOrder }) => {
   const [step, setStep] = useState(1);
   const [deliveryDetails, setDeliveryDetails] = useState({
     shipping: {
@@ -22,7 +26,7 @@ const CartPage = ({ cartItems, updateQuantity, removeFromCart, clearCart, placeO
       pincode: ''
     },
     sameAsShipping: true,
-    deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Default to 2 days from now
+    deliveryDate: getDefaultDeliveryDate() // Default to 2 days from now
   });
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [upiId, setUpiId] = useState('');

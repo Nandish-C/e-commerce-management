@@ -1,9 +1,12 @@
 import { FaTruck, FaBox, FaFilter, FaSearch, FaEdit, FaEye, FaTrash } from 'react-icons/fa';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './Admin.css';
 
-const AdminOrdersPage = ({ user, onLogout, orders: ordersProp }) => {
-  const orders = Array.isArray(ordersProp) ? ordersProp : [];
+// Kept outside the component so it is not called during render (react-hooks/purity)
+const generateOrderId = () => Date.now();
+
+const AdminOrdersPage = ({ orders: ordersProp }) => {
+  const [orders, setOrders] = useState(() => (Array.isArray(ordersProp) ? ordersProp : []));
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,7 +73,7 @@ const AdminOrdersPage = ({ user, onLogout, orders: ordersProp }) => {
     e.preventDefault();
     const orderData = {
       ...formData,
-      id: editingOrder ? editingOrder.id : Date.now(),
+      id: editingOrder ? editingOrder.id : generateOrderId(),
       date: editingOrder ? editingOrder.date : new Date(),
       customerName: formData.customerName,
       email: formData.email,

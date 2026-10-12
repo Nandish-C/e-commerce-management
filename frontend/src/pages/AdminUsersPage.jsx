@@ -1,11 +1,23 @@
 import { FaUsers, FaEdit, FaTrash, FaSearch, FaFilter, FaKey } from 'react-icons/fa';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './Admin.css';
 
-const AdminUsersPage = ({ user, onLogout }) => {
+const AdminUsersPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
-  const [users, setUsers] = useState([]);
+  // Load users from localStorage once, via a lazy initializer (no setState in effect)
+  const [users, setUsers] = useState(() => {
+    try {
+      const savedUsers = localStorage.getItem('users');
+      if (savedUsers) {
+        const parsed = JSON.parse(savedUsers);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+    } catch {
+      // Ignore unavailable/corrupt storage
+    }
+    return [];
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
@@ -25,19 +37,11 @@ const AdminUsersPage = ({ user, onLogout }) => {
     }
   });
 
-  // Load users from localStorage on initial render
-  useEffect(() => {
-    const savedUsers = localStorage.getItem('users');
-    if (savedUsers) {
-      setUsers(JSON.parse(savedUsers));
-    }
-  }, []);
-
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        user.phone.includes(searchTerm);
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        u.phone.includes(searchTerm);
+    const matchesRole = roleFilter === 'all' || u.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 

@@ -124,7 +124,7 @@ function App() {
   }
 
   // Place order
-  const placeOrder = async (deliveryDetails, paymentMethod, upiId) => {
+  const placeOrder = async (deliveryDetails, paymentMethod) => {
     try {
       // Calculate order totals
       const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);

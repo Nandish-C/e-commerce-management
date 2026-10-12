@@ -2,7 +2,7 @@ import { FaBox, FaPlus, FaEdit, FaTrash, FaSearch, FaFilter } from 'react-icons/
 import { useState } from 'react';
 import './Admin.css';
 
-const AdminProductsPage = ({ user, onLogout, products: productsProp, addProduct, deleteProduct, updateProduct }) => {
+const AdminProductsPage = ({ products: productsProp, addProduct, deleteProduct, updateProduct }) => {
   const products = Array.isArray(productsProp) ? productsProp : [];
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
