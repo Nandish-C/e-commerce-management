@@ -938,4 +938,16 @@
     align-items: flex-start;
     gap: 12px;
   }
+
+  .products-table-container,
+  .users-table-container,
+  .orders-table-container {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .products-table,
+  .users-table,
+  .orders-table {
+    min-width: 600px;
+  }
 }
