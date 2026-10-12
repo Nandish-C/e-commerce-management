@@ -948,19 +948,63 @@ html, body {
 
 /* Responsive */
 @media (max-width: 900px) {
+  .auth-page {
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+
   .auth-container-modern {
     flex-direction: column;
     max-width: 450px;
+    min-height: auto;
   }
-  
+
   .auth-brand-section {
     display: none;
   }
-  
+
+  /* On mobile the cards switch from the 3D flip to a simple in-flow card swap:
+     absolute positioning + rotateY is unreliable on mobile browsers. */
   .auth-forms-container {
     max-width: 100%;
+    min-height: auto;
+    display: block;
+    position: relative;
+    gap: 0;
+    perspective: none;
   }
-  
+
+  .auth-card {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    transform: none;
+    opacity: 1;
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+  }
+
+  .auth-forms-container .login-card {
+    display: block;
+  }
+
+  .auth-forms-container .register-card {
+    display: none;
+  }
+
+  .auth-forms-container.show-register .login-card {
+    display: none;
+    transform: none;
+    opacity: 1;
+  }
+
+  .auth-forms-container.show-register .register-card {
+    display: block;
+    transform: none;
+    opacity: 1;
+  }
+
   .toggle-btn {
     display: none;
   }
